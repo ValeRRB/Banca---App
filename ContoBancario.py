@@ -3,18 +3,20 @@ from tkinter import TclError
 from PIL import Image
 import os, sys
 
+# ============== CHATGPT - PATH ASSOLUTO DI UN ELEMENTO ==============
 def resource_path(relative_path):
-    """Get the absolute path to resource, works for dev and PyInstaller."""
     try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
     except AttributeError:
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
+# ====================================================================
 
 class ContoBancario:
-    def __init__(self, saldo):
+    def __init__(self, saldo, lista_operazioni, lista_denaro):
         self.saldo = saldo
+        self.lista_operazioni = lista_operazioni
+        self.lista_denaro = lista_denaro
     
     def deposita(self, denaro):
         self.saldo += denaro
@@ -107,7 +109,7 @@ class Input_informazioni(customtkinter.CTkToplevel):
         self.grid_rowconfigure(4, weight=1)
 
         self.label_titolo = customtkinter.CTkLabel(self,
-                                                    text=("Informazioni - Versione 0.2.0\n"
+                                                    text=("Informazioni - Versione 0.3.0\n"
                                                           "__________________________________________________________________"),
                                                     font=("Arial", 34),
                                                     fg_color="transparent")
@@ -168,11 +170,11 @@ class Input_informazioni(customtkinter.CTkToplevel):
         self.wait_window()
 
 class Frame_Azioni(customtkinter.CTkFrame):
-    def __init__(self, master, username, framesaldo):
+    def __init__(self, master, username, framesaldo, conto_utente, frameregistro):
         super().__init__(master, corner_radius=24)
-
-        self.conto_utente = ContoBancario(0.00)
+        self.conto_utente = conto_utente
         self.framesaldo = framesaldo
+        self.frameregistro = frameregistro
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=0)
@@ -221,6 +223,9 @@ class Frame_Azioni(customtkinter.CTkFrame):
         else:
             self.conto_utente.deposita(self.denaro)
             self.framesaldo.label_valore_saldo.configure(text=f"€{self.conto_utente.saldo:.2f} EUR")
+            self.conto_utente.lista_operazioni.append("positivo")
+            self.conto_utente.lista_denaro.append(self.denaro)
+            self.frameregistro.aggiorna()
 
     def Preleva_Denaro(self):
         self.finestra_rimozione_denaro = Input_Aggiungi_Denaro(self)
@@ -230,6 +235,9 @@ class Frame_Azioni(customtkinter.CTkFrame):
         else:
             self.conto_utente.preleva(self.denaro)
             self.framesaldo.label_valore_saldo.configure(text=f"€{self.conto_utente.saldo:.2f} EUR")
+            self.conto_utente.lista_operazioni.append("negativo")
+            self.conto_utente.lista_denaro.append(self.denaro)
+            self.frameregistro.aggiorna()
 
     def Switch_Tema(self):
         if self.tema_app_impostazione.get() == 1:
@@ -237,11 +245,67 @@ class Frame_Azioni(customtkinter.CTkFrame):
         else:
             customtkinter.set_appearance_mode("Light")
 
-
-class Frame_Registro(customtkinter.CTkFrame):
-    def __init__(self, master):
+class Frame_Registro_Operazione(customtkinter.CTkFrame):
+    def __init__(self, master, tipologia, denaro):
         super().__init__(master, corner_radius=24)
-     
+        self.columnconfigure(0, weight=0)
+        self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, weight=1)
+        self.rowconfigure(0, weight=0)
+
+        if tipologia == "positivo":
+            self.icona_operazione = customtkinter.CTkImage(Image.open(resource_path(r"assets\transaction_positive.png")),
+                                                           size=(60, 60))
+            self.label_icona_operazione = customtkinter.CTkLabel(self,
+                                                                 image=self.icona_operazione,
+                                                                 text=None)
+            self.label_testo_operazione1 = customtkinter.CTkLabel(self,
+                                                                 text=f"Aggiunto €{denaro:.2f} EUR",
+                                                                 font=("Arial", 20))
+
+        elif tipologia == "negativo":
+            self.icona_operazione = customtkinter.CTkImage(Image.open(resource_path(r"assets\transaction_negative.png")),
+                                                           size=(60, 60))
+            self.label_icona_operazione = customtkinter.CTkLabel(self,
+                                                                 image=self.icona_operazione,
+                                                                 text=None)
+            self.label_testo_operazione1 = customtkinter.CTkLabel(self,
+                                                                 text=f"Rimosso €{denaro:.2f} EUR",
+                                                                 font=("Arial", 20))
+
+        self.label_testo_operazione2 = customtkinter.CTkLabel(self,
+                                                                 text="Stato: successo ✅",
+                                                                 font=("Arial", 20))
+
+        self.label_icona_operazione.grid(row=0, column=0, padx=10, pady=10)
+        self.label_testo_operazione1.grid(row=0, column=1, sticky="w", padx=0, pady=10)
+        self.label_testo_operazione2.grid(row=0, column=2, sticky="e", padx=20, pady=10)
+
+class Frame_Registro(customtkinter.CTkScrollableFrame):
+    def __init__(self, master, conto_utente):
+        super().__init__(master, corner_radius=24)
+        self.columnconfigure(0, weight=1)
+        self.conto_utente = conto_utente
+
+        self.label_titolo = customtkinter.CTkLabel(self,
+                                                    text=("Registro"),
+                                                    font=("Arial", 24, "bold"),
+                                                    fg_color="transparent")
+        self.label_titolo.grid(row=0, column=0, sticky="ew", padx=0, pady=(0, 20))
+
+        self.frames_operazioni = []
+
+    def aggiorna(self):
+        for frame in self.frames_operazioni:
+            frame.destroy()
+        self.frames_operazioni.clear()
+
+        for fila, operazione in enumerate(self.conto_utente.lista_operazioni):
+            denaro = self.conto_utente.lista_denaro[fila]
+            frame_operazione = Frame_Registro_Operazione(self, operazione, denaro)
+            frame_operazione.grid(row=fila+1, column=0, sticky="ew", padx=(0, 10), pady=(0, 10))
+            self.frames_operazioni.append(frame_operazione)
+   
 class Input_Aggiungi_Denaro(customtkinter.CTkToplevel):
     def __init__(self, master):
         super().__init__(master)
@@ -376,6 +440,10 @@ class Frame_App(customtkinter.CTkFrame):
     def __init__(self, master, username):
         super().__init__(master, corner_radius=0)
         self.username = username
+        self.lista_operazioni = []
+        self.lista_denaro = []
+        self.conto_utente = ContoBancario(0.00, self.lista_operazioni, self.lista_denaro)
+
         self.grid_columnconfigure(0, weight=0)
         self.grid_columnconfigure(1, weight=4)
         self.grid_rowconfigure(0, weight=0)
@@ -384,11 +452,11 @@ class Frame_App(customtkinter.CTkFrame):
         self.FrameSaldo = Frame_Saldo(self)
         self.FrameSaldo.grid(row=0, column=0, sticky="nsew", padx=10, pady=(10, 5))
 
-        self.FrameAzioni = Frame_Azioni(self, self.username, self.FrameSaldo)
-        self.FrameAzioni.grid(row=1, column=0, sticky="nsew", padx=10, pady=(5, 10))
-
-        self.FrameRegistro = Frame_Registro(self)
+        self.FrameRegistro = Frame_Registro(self, self.conto_utente)
         self.FrameRegistro.grid(row=0, column=1, rowspan=2, sticky="nsew", padx=(5, 10), pady=10)
+
+        self.FrameAzioni = Frame_Azioni(self, self.username, self.FrameSaldo, self.conto_utente, self.FrameRegistro)
+        self.FrameAzioni.grid(row=1, column=0, sticky="nsew", padx=10, pady=(5, 10))
 
 
 class App(customtkinter.CTk):
