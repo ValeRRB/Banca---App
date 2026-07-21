@@ -1,7 +1,8 @@
 import customtkinter
 from PIL import Image
 from utils import resource_path
-from views.components import Dashboard, Utente, Frame_Utente
+from views.components import Utente, Frame_Utente
+from views.dashboard import Dashboard
 from views.carta import Carta
 
 class Frame_Sidebar(customtkinter.CTkFrame):

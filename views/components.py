@@ -49,8 +49,3 @@ class Dashboard(customtkinter.CTkFrame):
     def __init__(self, master, database):
         super().__init__(master, corner_radius=0)
         self.database = database
-
-class Carta(customtkinter.CTkFrame):
-    def __init__(self, master, database):
-        super().__init__(master, corner_radius=0)
-        self.database = database
