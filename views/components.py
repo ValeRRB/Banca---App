@@ -40,7 +40,7 @@ class Frame_Utente(customtkinter.CTkFrame):
                                                              width=200,
                                                              height=40,
                                                              command=self.visualizza_informazioni_utente)
-        self.pulsante_impostazioni.grid(row=1, column=1, padx=10, pady=10)
+        self.pulsante_impostazioni.grid(row=1, column=1, padx=10, pady=(5, 10))
 
     def visualizza_informazioni_utente(self):
         self.mostra_pagina("Utente")
