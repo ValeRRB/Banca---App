@@ -1,4 +1,6 @@
 import sqlite3
+from faker import Faker
+import datetime
 
 class Database:
     def __init__(self, database):
@@ -34,4 +36,22 @@ class Database:
                             (CodiceFiscale, Email, Password, Cognome, Nome, CittàNascita, DataNascita, Residenza, Cittadinanza, NumeroCellulare)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", 
                             (self.codicefiscale, self.email, self.password, self.cognome, self.nome, self.cittànascita, self.datanascita, self.residenza, self.cittadinanza, self.numerocellulare))
+        self.conn.commit()
+
+        self.creaConto(self.codicefiscale)
+
+    def creaConto(self, codicefiscale, saldo=0, tipoconto="Standard", statoconto="Attivo"):
+        self.codicefiscale = codicefiscale
+        fake = Faker("it_IT")
+        self.IBAN = fake.iban()
+        self.saldo = saldo
+        self.tipoConto = tipoconto
+        self.dataApertura = datetime.date.today()
+        self.statoconto = statoconto
+
+        self.cursor.execute("""INSERT INTO Conto
+                            (IBAN, Saldo, TipoConto, DataApertura, StatoConto, Proprietario)
+                            VALUES (?, ?, ?, ?, ?, ?)""",
+                            (self.IBAN, self.saldo, self.tipoConto, self.dataApertura, self.statoconto, self.codicefiscale))
+        
         self.conn.commit()

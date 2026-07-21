@@ -168,7 +168,7 @@ class App_Finestra_Signin(customtkinter.CTkFrame):
         numerocellulare = self.input_numerocellulare.get()
 
         self.database.signin(codicefiscale, email, password, cognome, nome, cittànascita, datanascita, residenza, cittadinanza, numerocellulare)
-
+        
         self.open_main_app(self.database.login(email, password))
 
     def passaggio_login(self):
