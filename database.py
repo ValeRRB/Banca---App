@@ -38,8 +38,6 @@ class Database:
                             (self.codicefiscale, self.email, self.password, self.cognome, self.nome, self.cittànascita, self.datanascita, self.residenza, self.cittadinanza, self.numerocellulare))
         self.conn.commit()
 
-        self.creaConto(self.codicefiscale)
-
     def creaConto(self, codicefiscale, saldo=0, tipoconto="Standard", statoconto="Attivo"):
         self.codicefiscale = codicefiscale
         fake = Faker("it_IT")
@@ -55,3 +53,18 @@ class Database:
                             (self.IBAN, self.saldo, self.tipoConto, self.dataApertura, self.statoconto, self.codicefiscale))
         
         self.conn.commit()
+
+    def getContiUtente(self, codicefiscale):
+        self.codicefiscale = codicefiscale
+        self.cursor.execute("""SELECT IBAN, Saldo, TipoConto, StatoConto
+                            FROM Conto WHERE Proprietario = ?""", (self.codicefiscale,))
+        return self.cursor.fetchall()
+
+    def getCodiceFiscaleByEmail(self, email):
+        self.email = email
+        self.cursor.execute("""SELECT CodiceFiscale
+                            FROM Utente WHERE EMail == ?""", (self.email,))
+        self.risultato = self.cursor.fetchone()
+        if self.risultato:
+            return self.risultato[0]
+        return None

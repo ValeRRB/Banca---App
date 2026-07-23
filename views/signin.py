@@ -194,3 +194,5 @@ class App_Finestra_Signin(customtkinter.CTkFrame):
 
         self.main_app = MainApp(self.master, self.database, self.sessione_utente)
         self.main_app.grid(row=0, column=0, sticky="nsew")
+
+        

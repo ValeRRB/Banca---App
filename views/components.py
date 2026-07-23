@@ -44,8 +44,3 @@ class Frame_Utente(customtkinter.CTkFrame):
 
     def visualizza_informazioni_utente(self):
         self.mostra_pagina("Utente")
-
-class Dashboard(customtkinter.CTkFrame):
-    def __init__(self, master, database):
-        super().__init__(master, corner_radius=0)
-        self.database = database

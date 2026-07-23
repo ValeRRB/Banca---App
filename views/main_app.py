@@ -4,7 +4,6 @@ from utils import resource_path
 from views.components import Utente, Frame_Utente
 from views.dashboard import Dashboard
 from views.carta import Carta
-from views.notifica_creazione_utente import Notifica_Creazione_Utente
 
 class Frame_Sidebar(customtkinter.CTkFrame):
     def __init__(self, master, database, mostra_pagina_callback, sessione_utente):
@@ -83,7 +82,7 @@ class MainApp(customtkinter.CTkFrame):
         self.frame_principale.grid(row=0, column=1, padx=0, pady=0, sticky="nsew")
 
         self.pagine_frame = {
-            "Dashboard": Dashboard(self.frame_principale, self.database),
+            "Dashboard": Dashboard(self.frame_principale, self.database, self.sessione_utente),
             "Carta1": Carta(self.frame_principale, self.database),
             "Utente": Utente(self.frame_principale, self.database, self.mostra_pagina)
         }
@@ -92,8 +91,6 @@ class MainApp(customtkinter.CTkFrame):
             pagina.place(relwidth=1, relheight=1)
 
         self.mostra_pagina("Dashboard")
-
-        self.notifica = Notifica_Creazione_Utente(self)
 
     def mostra_pagina(self, nome):
         frame = self.pagine_frame[nome]
