@@ -63,7 +63,7 @@ class Database:
     def getCodiceFiscaleByEmail(self, email):
         self.email = email
         self.cursor.execute("""SELECT CodiceFiscale
-                            FROM Utente WHERE EMail == ?""", (self.email,))
+                            FROM Utente WHERE Email == ?""", (self.email,))
         self.risultato = self.cursor.fetchone()
         if self.risultato:
             return self.risultato[0]

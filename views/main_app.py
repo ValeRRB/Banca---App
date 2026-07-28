@@ -21,7 +21,7 @@ class Frame_Sidebar(customtkinter.CTkFrame):
         self.rowconfigure(4, weight=0)
         self.rowconfigure(5, weight=0)
 
-        self.label_logo_image = customtkinter.CTkImage(Image.open(r"assets\icon.ico"),
+        self.label_logo_image = customtkinter.CTkImage(Image.open(resource_path(r"assets\icon.ico")),
                                                         size=(35, 35))
         self.label_logo = customtkinter.CTkLabel(self,
                                                  image=self.label_logo_image,

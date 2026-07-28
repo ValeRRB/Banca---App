@@ -201,7 +201,8 @@ class Dashboard(customtkinter.CTkFrame):
         self.database = database
         self.sessione_utente = sessione_utente
 
-        self.email = self.sessione_utente[0]
+        self.email = self.sessione_utente[1]
+        print(f"EMAIL: {self.email}")
         self.codicefiscale = self.database.getCodiceFiscaleByEmail(self.email)
 
         self.columnconfigure(0, weight=1)
